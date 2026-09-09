@@ -1,0 +1,8 @@
+Model_Type,Test_Attack,Seen_or_Unseen,Expected_Accuracy,Expected_ASR
+Baseline_LR,Clean_Data,N/A,0.95,0.00
+Baseline_LR,FGSM,Seen,0.25,0.75
+Baseline_LR,JSMA,Unseen,0.20,0.80
+Baseline_LR,DeepFool,Unseen,0.18,0.82
+Defended_LR,FGSM,Seen,0.85,0.15
+Defended_LR,JSMA,Unseen,0.45,0.55
+Defended_LR,DeepFool,Unseen,0.40,0.60
