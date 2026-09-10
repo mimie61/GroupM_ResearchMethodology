@@ -1,0 +1,165 @@
+# CHAPTER 2: LITERATURE REVIEW
+
+## 2.1 Introduction
+
+Machine Learning (ML) has become increasingly important in cybersecurity, particularly for detecting malicious network activities. One common application is the Machine Learning-based Intrusion Detection System (ML-based IDS), which uses trained models to distinguish between normal and malicious network traffic. However, despite their effectiveness, ML models can be vulnerable to deliberately manipulated inputs known as adversarial examples.
+
+Adversarial Machine Learning (AML) studies these vulnerabilities and the methods used to protect ML models against adversarial attacks. This issue is particularly important in intrusion detection because a successful adversarial attack may cause malicious network traffic to be incorrectly classified as legitimate.
+
+This chapter reviews AML and its application in cybersecurity, particularly in ML-based intrusion detection. It focuses on three adversarial attacks: Fast Gradient Sign Method (FGSM), Jacobian-based Saliency Map Attack (JSMA), and DeepFool. Adversarial training is also discussed as the selected defense mechanism. Finally, previous studies are compared and synthesised to identify the research gap concerning cross-attack generalization.
+
+---
+
+## 2.2 Adversarial Machine Learning Background
+
+Adversarial Machine Learning refers to the study of attacks that intentionally manipulate machine-learning systems and the defensive techniques used to improve their robustness. An adversarial attack usually modifies input data in a calculated way to influence the prediction made by a trained model.
+
+Adversarial attacks can occur during either training or testing. Poisoning attacks manipulate training data to influence the learning process, whereas evasion attacks modify inputs after the model has already been trained. The present research focuses on adversarial evasion attacks because FGSM, JSMA, and DeepFool are used to generate adversarial examples against the trained intrusion detection model.
+
+Attacks may also be classified according to the attacker's knowledge of the target model. White-box attacks assume substantial knowledge of the target model, such as its parameters or gradients, while black-box attacks operate with limited internal knowledge. These different attack conditions demonstrate that ML models may face several forms of adversarial manipulation.
+
+---
+
+## 2.3 Adversarial Machine Learning in Cybersecurity
+
+AML is particularly important in cybersecurity because machine-learning models increasingly support security-related decisions. Machine learning has been applied to areas such as intrusion detection, malware detection, DDoS detection, IoT security, and malicious URL detection.
+
+In an intrusion-detection environment, an adversarial attacker may attempt to manipulate malicious network data so that an ML classifier incorrectly identifies it as benign. Therefore, a model that performs well on normal test data may still become unreliable when deliberately manipulated inputs are introduced.
+
+Previous research has shown that the effectiveness of adversarial attacks and defenses can vary depending on the attack technique, target model, dataset, and cybersecurity environment. This makes it important to evaluate security models under multiple adversarial conditions instead of assuming that protection against one attack guarantees protection against all attacks.
+
+---
+
+## 2.4 Machine Learning-Based Intrusion Detection System
+
+An Intrusion Detection System (IDS) monitors network activities to identify suspicious or malicious behaviour. Traditional IDS approaches commonly rely on known signatures or predefined rules. In contrast, ML-based IDSs learn patterns from network data and use these patterns to classify new network traffic.
+
+Different machine-learning algorithms have been applied to intrusion detection, including Decision Tree, Random Forest, Support Vector Machine, and Logistic Regression. In the present research, Logistic Regression is selected as the machine-learning classifier, while CIC-IDS2017 is used as the intrusion-detection dataset.
+
+CIC-IDS2017 contains labelled benign and malicious network traffic and provides structured network-flow features that are suitable for supervised machine-learning experiments. However, good classification performance on normal network traffic does not automatically indicate that the model is secure against adversarial manipulation. Therefore, evaluating the Logistic Regression model under adversarial attacks is necessary to determine its robustness.
+
+---
+
+## 2.5 Adversarial Attacks
+
+Adversarial attacks deliberately modify input data to cause an ML model to make an incorrect prediction. Although different adversarial attacks have a similar objective, they use different techniques to generate adversarial examples.
+
+This research focuses on FGSM, JSMA, and DeepFool. These attacks are useful for the proposed experiment because their different attack mechanisms allow the study to determine whether robustness learned from FGSM can extend to other adversarial attacks.
+
+### 2.5.1 Fast Gradient Sign Method (FGSM)
+
+The Fast Gradient Sign Method (FGSM) was introduced by Goodfellow et al. (2015). It generates adversarial examples by using gradient information from the model's loss function to determine how the input should be modified to increase prediction error.
+
+FGSM can be represented as:
+
+`x_adv = x + ε × sign(∇x J(θ, x, y))`
+
+where `x` represents the original input, `x_adv` represents the adversarial input, and `ε` controls the size of the perturbation.
+
+FGSM is particularly important in this research because it has two roles. First, FGSM adversarial examples are used during adversarial training. Second, FGSM is used again during testing to determine whether the defended model has improved its robustness against the attack encountered during training. Therefore, FGSM represents the **seen attack** in this research.
+
+### 2.5.2 Jacobian-Based Saliency Map Attack (JSMA)
+
+The Jacobian-based Saliency Map Attack (JSMA) was introduced by Papernot et al. (2016). Unlike FGSM, which uses gradient information to modify the input, JSMA uses the model's Jacobian to identify features that have a strong influence on its prediction. A saliency map is then used to determine which features should be modified.
+
+This different attack strategy makes JSMA useful for testing cross-attack generalization. In this research, JSMA is not included during adversarial training and is introduced only during testing. Therefore, JSMA is considered an **unseen attack**.
+
+If FGSM-based adversarial training improves the model's performance against JSMA, this would indicate that some of the robustness learned from FGSM can generalize to a different adversarial attack.
+
+### 2.5.3 DeepFool
+
+DeepFool was introduced by Moosavi-Dezfooli et al. (2016). The attack attempts to determine a relatively small perturbation capable of moving an input across the model's decision boundary, causing the model to change its prediction.
+
+DeepFool differs from FGSM and JSMA in its approach to generating adversarial examples. Instead of relying only on a direct gradient-sign perturbation or feature saliency, DeepFool iteratively searches for a perturbation that crosses the classification boundary.
+
+Like JSMA, DeepFool is excluded from the adversarial-training process and is introduced only during testing. Therefore, DeepFool represents the second **unseen attack** in the proposed research.
+
+---
+
+## 2.6 Adversarial Training
+
+Adversarial training is a defensive technique in which adversarial examples are incorporated into the model-training process. Instead of learning only from clean data, the model is also exposed to manipulated examples so that it can learn to classify adversarial inputs more effectively.
+
+Previous studies have shown that adversarial training can improve model robustness. However, the level of protection may vary depending on the attack used during training and the attack encountered during testing. A model that becomes resistant to one adversarial technique may not necessarily achieve the same level of robustness against another technique.
+
+The present research therefore uses **FGSM only for adversarial training**. After training, the defended model is evaluated against FGSM, JSMA, and DeepFool. This design allows the research to distinguish between robustness against the seen FGSM attack and robustness against the unseen JSMA and DeepFool attacks.
+
+---
+
+## 2.7 Previous Studies
+
+Previous studies provide an important foundation for adversarial attacks and adversarial defense. Goodfellow et al. (2015) introduced FGSM and demonstrated that relatively small gradient-based perturbations can cause incorrect model predictions. Their research also demonstrated the potential of adversarial training for improving robustness.
+
+Papernot et al. (2016) introduced JSMA, which uses saliency information to identify influential input features for adversarial manipulation. In comparison, Moosavi-Dezfooli et al. (2016) proposed DeepFool, which attempts to find relatively small perturbations capable of crossing a classifier's decision boundary. These studies demonstrate that adversarial attacks can manipulate ML models using different strategies.
+
+Research has also extended adversarial machine learning into network intrusion detection. Qureshi et al. (2022) investigated adversarial attacks against supervised ML-based network IDSs using CIC-IDS2017 and classifiers including Logistic Regression. Their findings demonstrated that adversarial manipulation can reduce the performance of ML-based intrusion detection models.
+
+More recent cybersecurity research has investigated adversarial training and other defensive mechanisms. These studies generally demonstrate that adversarial defenses can improve model robustness. However, the effectiveness of the defense may differ across attacks. This suggests that successful defense against one adversarial technique should not automatically be considered evidence of general robustness.
+
+---
+
+## 2.8 Comparison and Synthesis of Previous Studies
+
+The reviewed studies differ mainly in their attack techniques, target models, datasets, and defensive strategies. FGSM, JSMA, and DeepFool all attempt to cause incorrect model predictions, but they generate adversarial examples differently. FGSM applies gradient-based perturbations, JSMA focuses on influential features, while DeepFool attempts to cross the model's decision boundary.
+
+Previous IDS studies also differ in their defensive approaches. Some evaluate models against individual attacks, while others use multiple adversarial attacks during training. Multi-attack adversarial training may provide protection against several attack types. However, if the same attacks are included during both training and testing, the results provide limited evidence about how the defense would perform against a genuinely unseen attack.
+
+This creates an important distinction between **seen-attack robustness** and **cross-attack generalization**. A model trained and tested using FGSM demonstrates robustness against an attack that it has already encountered. In contrast, testing the same FGSM-trained model against JSMA and DeepFool provides a stronger evaluation of whether the learned protection can transfer to different attack techniques.
+
+Therefore, the present research focuses not only on whether adversarial training improves model robustness, but also on whether that robustness can generalize beyond the attack used during training.
+
+---
+
+## 2.9 Summary of Relevant Studies
+
+| Study | Focus | Method / Attack | Main Finding | Relevance / Limitation |
+|---|---|---|---|---|
+| Goodfellow et al. (2015) | Adversarial examples | FGSM and adversarial training | Small gradient-based perturbations can fool ML models | Provides the foundation for FGSM and adversarial training |
+| Papernot et al. (2016) | Adversarial manipulation | JSMA | Selected influential features can be modified to affect model predictions | Provides one of the unseen attacks used in this research |
+| Moosavi-Dezfooli et al. (2016) | Model robustness | DeepFool | Small decision-boundary perturbations can change classifications | Provides the second unseen attack |
+| Sharafaldin et al. (2018) | Intrusion-detection dataset | CIC-IDS2017 | Developed labelled network data suitable for IDS experiments | Provides the dataset used in this research |
+| Qureshi et al. (2022) | Adversarial ML-based IDS | Adversarial attacks and Logistic Regression | ML-based IDS models can be vulnerable to adversarial manipulation | Supports the use of Logistic Regression and CIC-IDS2017 |
+| Verma et al. (2025) | Adversarial IDS defense | Adversarial detection and training | Defensive effectiveness can differ across attacks | Supports the need to evaluate cross-attack robustness |
+| Present Research | Cross-attack generalization | FGSM training; FGSM, JSMA and DeepFool testing | Evaluates robustness against seen and unseen attacks | Addresses the identified research gap |
+
+---
+
+## 2.10 Research Gap
+
+Existing studies have demonstrated that adversarial attacks can reduce the performance of machine-learning models and that adversarial training can improve model robustness. However, an important limitation remains: a defense that performs well against the adversarial attack used during training may not provide the same level of protection against different or previously unseen attacks.
+
+Previous research often evaluates adversarial robustness using the same attack employed during defensive training or includes several adversarial attacks during the training process. Although these approaches are useful for measuring robustness, they provide limited evidence about whether protection learned from a **single attack** can transfer to different adversarial techniques.
+
+Therefore, the specific research gap addressed in this study is:
+
+> **There is limited empirical evidence on whether FGSM-based adversarial training in an ML-based intrusion detection system can generalize its robustness to unseen adversarial attacks such as JSMA and DeepFool.**
+
+To address this gap, the proposed research uses CIC-IDS2017 to train a Logistic Regression-based intrusion detection model. FGSM is used for adversarial training and represents the **seen attack**. The defended model is then tested against JSMA and DeepFool as **unseen attacks**, together with FGSM for comparison.
+
+The performance of the model before and after adversarial training will be compared using Accuracy, Precision, Recall, F1-score, and Attack Success Rate (ASR). This comparison will help determine whether the defense is mainly effective against FGSM or whether its robustness can generalize to different adversarial attack techniques.
+
+---
+
+## 2.11 Chapter Summary
+
+This chapter reviewed the literature related to Adversarial Machine Learning, ML-based intrusion detection, FGSM, JSMA, DeepFool, and adversarial training. Existing research demonstrates that ML-based security models can be vulnerable to adversarial manipulation and that adversarial training can improve their robustness.
+
+However, FGSM, JSMA, and DeepFool use different methods to generate adversarial examples. Therefore, successful defense against one attack does not necessarily guarantee protection against another. This creates the central research gap concerning cross-attack generalization.
+
+The proposed study addresses this gap by training the defense using FGSM and subsequently testing the defended Logistic Regression model against FGSM, JSMA, and DeepFool. The comparison between the seen FGSM attack and unseen JSMA and DeepFool attacks will determine whether FGSM-based adversarial training produces attack-specific protection or broader adversarial robustness.
+
+---
+
+# References
+
+Goodfellow, I. J., Shlens, J., & Szegedy, C. (2015). Explaining and harnessing adversarial examples. *International Conference on Learning Representations (ICLR).*
+
+Moosavi-Dezfooli, S.-M., Fawzi, A., & Frossard, P. (2016). DeepFool: A simple and accurate method to fool deep neural networks. *2016 IEEE Conference on Computer Vision and Pattern Recognition*, 2574–2582. https://doi.org/10.1109/CVPR.2016.282
+
+Papernot, N., McDaniel, P., Jha, S., Fredrikson, M., Celik, Z. B., & Swami, A. (2016). The limitations of deep learning in adversarial settings. *2016 IEEE European Symposium on Security and Privacy*, 372–387. https://doi.org/10.1109/EuroSP.2016.36
+
+Qureshi, A. U. H., Larijani, H., Ahmad, J., & Mtetwa, N. (2022). Adversarial attacks against supervised machine learning based network intrusion detection systems. *PLOS ONE, 17*(10), e0275971. https://doi.org/10.1371/journal.pone.0275971
+
+Sharafaldin, I., Habibi Lashkari, A., & Ghorbani, A. A. (2018). Toward generating a new intrusion detection dataset and intrusion traffic characterization. *Proceedings of the 4th International Conference on Information Systems Security and Privacy (ICISSP).*
+
+Verma, P., Vidyarthi, A., Mishra, A., Ali, J., Bharot, N., & Breslin, J. G. (2025). A secure adversarial attack detector framework for monitoring network intrusion in IoT environment. *IEEE Transactions on Consumer Electronics, 71*(4), 11613–11623.
