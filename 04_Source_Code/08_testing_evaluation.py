@@ -1,5 +1,5 @@
 # 08_testing_evaluation.py
-# Preliminary testing and evaluation for the IDS
+# Preliminary testing and evaluation
 
 from sklearn.metrics import (
     accuracy_score,
@@ -9,14 +9,29 @@ from sklearn.metrics import (
 )
 
 
-def evaluate_model(model, X_test, y_test):
+def evaluate_model(
+    model,
+    X_test,
+    y_test
+):
     """
-    Evaluate the model using standard classification metrics.
+    Calculate classification metrics.
+
+    Metrics:
+        Accuracy
+        Precision
+        Recall
+        F1-score
     """
 
-    predictions = model.predict(X_test)
+    predictions = model.predict(
+        X_test
+    )
 
-    accuracy = accuracy_score(y_test, predictions)
+    accuracy = accuracy_score(
+        y_test,
+        predictions
+    )
 
     precision = precision_score(
         y_test,
@@ -39,13 +54,6 @@ def evaluate_model(model, X_test, y_test):
         zero_division=0
     )
 
-    print("Model Evaluation")
-    print("----------------")
-    print("Accuracy :", accuracy)
-    print("Precision:", precision)
-    print("Recall   :", recall)
-    print("F1-score :", f1)
-
     return {
         "Accuracy": accuracy,
         "Precision": precision,
@@ -55,33 +63,139 @@ def evaluate_model(model, X_test, y_test):
 
 
 def calculate_attack_success_rate(
-    original_predictions,
-    adversarial_predictions
+    model,
+    X_adversarial,
+    y_true
 ):
     """
-    Calculate the Attack Success Rate (ASR).
+    Calculate Attack Success Rate (ASR).
 
-    ASR represents the proportion of originally
-    correct predictions that become incorrect
-    after adversarial manipulation.
+    For this IDS research, an attack is considered
+    successful when malicious traffic is classified
+    as benign.
+
+    Therefore:
+
+        True label     = 1 (malicious)
+        Prediction     = 0 (benign)
+
+    ASR =
+        Successful malicious-to-benign evasions
+        /
+        Total malicious adversarial samples
+        × 100
     """
 
-    successful_attacks = (
-        original_predictions != adversarial_predictions
+    predictions = model.predict(
+        X_adversarial
     )
 
-    asr = successful_attacks.mean()
+    # Select only originally malicious samples
+    malicious_samples = (
+        y_true == 1
+    )
 
-    print("Attack Success Rate (ASR):", asr)
+    total_malicious = (
+        malicious_samples.sum()
+    )
+
+    if total_malicious == 0:
+        return 0.0
+
+    # Successful evasion:
+    # malicious → benign
+    successful_attacks = (
+        (y_true == 1)
+        &
+        (predictions == 0)
+    )
+
+    successful_count = (
+        successful_attacks.sum()
+    )
+
+    asr = (
+        successful_count
+        / total_malicious
+        * 100
+    )
 
     return asr
 
 
+def display_results(
+    model_name,
+    attack_name,
+    metrics,
+    asr=None
+):
+    """
+    Display evaluation results.
+    """
+
+    print("\n================================")
+    print("Model :", model_name)
+    print("Attack:", attack_name)
+    print("================================")
+
+    print(
+        "Accuracy :",
+        round(
+            metrics["Accuracy"],
+            4
+        )
+    )
+
+    print(
+        "Precision:",
+        round(
+            metrics["Precision"],
+            4
+        )
+    )
+
+    print(
+        "Recall   :",
+        round(
+            metrics["Recall"],
+            4
+        )
+    )
+
+    print(
+        "F1-score :",
+        round(
+            metrics["F1-score"],
+            4
+        )
+    )
+
+    if asr is not None:
+
+        print(
+            "ASR (%)  :",
+            round(asr, 2)
+        )
+
+
 if __name__ == "__main__":
 
-    print("Testing and Evaluation Module")
-    print("--------------------------------")
-    print("The defended model will be evaluated against:")
-    print("FGSM  - Seen Attack")
-    print("JSMA  - Unseen Attack")
-    print("DeepFool - Unseen Attack")
+    print(
+        "Testing and Evaluation Module"
+    )
+
+    print("\nEvaluation Metrics:")
+    print("- Accuracy")
+    print("- Precision")
+    print("- Recall")
+    print("- F1-score")
+    print("- Attack Success Rate (ASR)")
+
+    print("\nTesting Configurations:")
+    print("1. Baseline LR + Clean")
+    print("2. Baseline LR + FGSM")
+    print("3. Baseline LR + JSMA")
+    print("4. Baseline LR + DeepFool")
+    print("5. FGSM-trained LR + FGSM")
+    print("6. FGSM-trained LR + JSMA")
+    print("7. FGSM-trained LR + DeepFool")
