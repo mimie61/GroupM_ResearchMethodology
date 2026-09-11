@@ -1,54 +1,82 @@
 # 05_jsma_attack.py
-# Preliminary JSMA adversarial attack implementation
+# Preliminary JSMA-style adversarial attack
 
 import numpy as np
 
 
-def generate_jsma(model, X, target_class, theta=0.01):
+def generate_jsma(
+    model,
+    X,
+    target_class=0,
+    theta=0.01,
+    max_features=10
+):
     """
-    Generate preliminary JSMA-style adversarial examples.
+    Generate preliminary JSMA-style
+    adversarial examples.
 
-    Parameters:
-        model        : trained classification model
-        X            : input features
-        target_class : target class for the attack
-        theta        : feature modification amount
+    Target class:
+        0 = Benign
 
-    Returns:
-        X_adv        : adversarial examples
+    JSMA is used only during testing
+    in the proposed research.
     """
 
-    X = np.asarray(X, dtype=float)
-    X_adv = X.copy()
+    X = np.asarray(
+        X,
+        dtype=float
+    )
 
-    classes = model.classes_
+    X_adversarial = X.copy()
 
-    if target_class not in classes:
-        raise ValueError("Target class is not available in the model.")
+    weights = model.coef_[0]
 
-    target_index = np.where(classes == target_class)[0][0]
+    # Move feature influence toward benign class
+    if target_class == 0:
+        feature_influence = -weights
+    else:
+        feature_influence = weights
 
-    # Logistic Regression coefficients are used to estimate
-    # feature influence on the target class.
-    feature_influence = model.coef_[target_index]
-
-    # Select influential features
+    # Rank features according to influence
     important_features = np.argsort(
         np.abs(feature_influence)
     )[::-1]
 
-    # Modify the most influential features
-    for feature_index in important_features[:10]:
-        direction = np.sign(feature_influence[feature_index])
+    selected_features = (
+        important_features[
+            :max_features
+        ]
+    )
+
+    # Modify selected features
+    for feature_index in selected_features:
+
+        direction = np.sign(
+            feature_influence[
+                feature_index
+            ]
+        )
 
         if direction == 0:
-            direction = 1
+            continue
 
-        X_adv[:, feature_index] += theta * direction
+        X_adversarial[
+            :,
+            feature_index
+        ] += (
+            theta * direction
+        )
 
-    return X_adv
+    return X_adversarial
 
 
 if __name__ == "__main__":
-    print("JSMA attack module")
-    print("JSMA is reserved for testing as an unseen attack.")
+
+    print("JSMA Attack")
+    print("-----------")
+    print(
+        "JSMA is used only during testing."
+    )
+    print(
+        "JSMA is an UNSEEN attack."
+    )
