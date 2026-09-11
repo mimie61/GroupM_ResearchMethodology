@@ -1,53 +1,76 @@
 # 04_fgsm_attack.py
-# Preliminary FGSM adversarial attack implementation
+# Preliminary FGSM adversarial attack
 
 import numpy as np
 
 
-def generate_fgsm(model, X, y, epsilon=0.01):
+def generate_fgsm(
+    model,
+    X,
+    y,
+    epsilon=0.01
+):
     """
-    Generate FGSM adversarial examples for a Logistic Regression model.
+    Generate FGSM adversarial examples
+    for a binary Logistic Regression model.
 
     Parameters:
-        model   : trained Logistic Regression model
-        X       : input features
-        y       : true labels
-        epsilon : perturbation magnitude
+        model    : Trained Logistic Regression model.
+        X        : Input feature matrix.
+        y        : True binary labels.
+        epsilon  : Perturbation magnitude.
 
     Returns:
-        X_adv   : adversarial examples
+        numpy.ndarray: FGSM adversarial examples.
     """
 
-    X = np.asarray(X, dtype=float)
-    X_adv = X.copy()
+    X = np.asarray(
+        X,
+        dtype=float
+    )
 
-    # Convert labels into class indices
-    classes = model.classes_
+    y = np.asarray(
+        y,
+        dtype=float
+    )
 
-    # Calculate probabilities
-    probabilities = model.predict_proba(X)
+    # Probability of malicious class
+    probabilities = model.predict_proba(
+        X
+    )[:, 1]
 
-    # Create one-hot encoded labels
-    y_encoded = np.zeros_like(probabilities)
+    # Difference between prediction and true label
+    error = probabilities - y
 
-    for i, label in enumerate(y):
-        class_index = np.where(classes == label)[0][0]
-        y_encoded[i, class_index] = 1
-
-    # Calculate gradient of cross-entropy loss
-    error = probabilities - y_encoded
-    gradient = np.dot(error, model.coef_)
+    # Gradient of the binary loss with respect
+    # to the input features
+    gradient = (
+        error[:, np.newaxis]
+        * model.coef_[0]
+    )
 
     # FGSM perturbation
-    perturbation = epsilon * np.sign(gradient)
+    perturbation = (
+        epsilon
+        * np.sign(gradient)
+    )
 
     # Generate adversarial examples
-    X_adv = X + perturbation
+    X_adversarial = (
+        X + perturbation
+    )
 
-    return X_adv
+    return X_adversarial
 
 
 if __name__ == "__main__":
-    print("FGSM attack module")
-    print("This module generates adversarial examples")
-    print("for FGSM-based adversarial training and testing.")
+
+    print("FGSM Attack")
+    print("-----------")
+    print(
+        "FGSM is used for adversarial "
+        "training and testing."
+    )
+    print(
+        "FGSM is the SEEN attack."
+    )
