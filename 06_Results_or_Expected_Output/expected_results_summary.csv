@@ -1,8 +1,8 @@
-Model_Type,Test_Attack,Seen_or_Unseen,Expected_Accuracy,Expected_ASR
-Baseline_LR,Clean_Data,N/A,0.95,0.00
-Baseline_LR,FGSM,Seen,0.25,0.75
-Baseline_LR,JSMA,Unseen,0.20,0.80
-Baseline_LR,DeepFool,Unseen,0.18,0.82
-Defended_LR,FGSM,Seen,0.85,0.15
-Defended_LR,JSMA,Unseen,0.45,0.55
-Defended_LR,DeepFool,Unseen,0.40,0.60
+Model,Test_Attack,Attack_Status,Expected_Outcome
+Baseline_LR,Clean,N/A,Establish baseline classification performance on clean test data
+Baseline_LR,FGSM,Seen,Classification performance is expected to decrease under FGSM adversarial manipulation
+Baseline_LR,JSMA,Unseen,Classification performance is expected to decrease under JSMA adversarial manipulation
+Baseline_LR,DeepFool,Unseen,Classification performance is expected to decrease under DeepFool adversarial manipulation
+FGSM_Trained_LR,FGSM,Seen,Improved robustness is expected against the FGSM attack used during adversarial training
+FGSM_Trained_LR,JSMA,Unseen,Cross-attack robustness will be evaluated against an attack not used during training
+FGSM_Trained_LR,DeepFool,Unseen,Cross-attack robustness will be evaluated against an attack not used during training
