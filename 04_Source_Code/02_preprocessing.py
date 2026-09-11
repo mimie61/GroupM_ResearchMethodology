@@ -1,58 +1,139 @@
 # 02_preprocessing.py
-# Preliminary data preprocessing for CIC-IDS2017
+# Preliminary preprocessing for CIC-IDS2017
 
 import pandas as pd
+
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 
 
 def preprocess_data(data):
     """
-    Clean and preprocess the CIC-IDS2017 dataset.
+    Preprocess CIC-IDS2017 for the proposed IDS experiment.
+
+    Processing includes:
+    1. Cleaning invalid values
+    2. Removing duplicate records
+    3. Separating features and labels
+    4. Converting labels into binary classes
+    5. Converting categorical features into numerical form
+    6. Stratified 70:30 train-test split
+    7. MinMaxScaler fitted only on training data
+
+    Binary labels:
+        0 = Benign
+        1 = Malicious
     """
 
-    # Replace infinite values with missing values
-    data = data.replace([float("inf"), float("-inf")], pd.NA)
+    data = data.copy()
+
+    # Remove spaces from column names
+    data.columns = data.columns.str.strip()
+
+    # Replace infinite values
+    data = data.replace(
+        [float("inf"), float("-inf")],
+        pd.NA
+    )
 
     # Remove rows containing missing values
     data = data.dropna()
 
-    # Remove duplicate rows
+    # Remove duplicate records
     data = data.drop_duplicates()
 
-    # Separate features and labels
-    X = data.drop("Label", axis=1)
-    y = data["Label"]
+    # Check Label column
+    if "Label" not in data.columns:
+        raise ValueError(
+            "The dataset must contain a 'Label' column."
+        )
 
-    # Convert categorical features into numerical values
+    # Clean label values
+    data["Label"] = (
+        data["Label"]
+        .astype(str)
+        .str.strip()
+    )
+
+    # Convert labels to binary classification
+    y = data["Label"].apply(
+        lambda label:
+        0 if label.upper() == "BENIGN" else 1
+    )
+
+    # Remove original label from feature set
+    X = data.drop(
+        columns=["Label"]
+    )
+
+    # Convert categorical columns to numerical values
     X = pd.get_dummies(X)
 
-    # Split data into training and testing sets
+    # Ensure numerical features
+    X = X.apply(
+        pd.to_numeric,
+        errors="coerce"
+    )
+
+    # Remove invalid values created during conversion
+    X = X.replace(
+        [float("inf"), float("-inf")],
+        pd.NA
+    )
+
+    valid_rows = X.dropna().index
+
+    X = X.loc[valid_rows]
+    y = y.loc[valid_rows]
+
+    # ---------------------------------------------------------
+    # Stratified 70:30 train-test split
+    # ---------------------------------------------------------
+
     X_train, X_test, y_train, y_test = train_test_split(
         X,
         y,
-        test_size=0.2,
+        test_size=0.30,
         random_state=42,
         stratify=y
     )
 
-    # Feature normalization
-    scaler = StandardScaler()
+    # ---------------------------------------------------------
+    # MinMaxScaler
+    # Fit only on training data to prevent data leakage.
+    # ---------------------------------------------------------
 
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.transform(X_test)
+    scaler = MinMaxScaler()
+
+    X_train_scaled = scaler.fit_transform(
+        X_train
+    )
+
+    X_test_scaled = scaler.transform(
+        X_test
+    )
 
     print("Preprocessing completed.")
-    print("Training data shape:", X_train.shape)
-    print("Testing data shape:", X_test.shape)
+    print("------------------------")
+    print("Train samples :", X_train_scaled.shape[0])
+    print("Test samples  :", X_test_scaled.shape[0])
+    print("Features      :", X_train_scaled.shape[1])
+    print("Split         : 70:30")
+    print("Scaler        : MinMaxScaler")
 
-    return X_train, X_test, y_train, y_test, scaler
+    return (
+        X_train_scaled,
+        X_test_scaled,
+        y_train,
+        y_test,
+        scaler
+    )
 
 
 if __name__ == "__main__":
-    # Replace this path with the location of the CIC-IDS2017 CSV file.
+
     file_path = "CIC-IDS2017.csv"
 
     data = pd.read_csv(file_path)
 
-    X_train, X_test, y_train, y_test, scaler = preprocess_data(data)
+    preprocess_data(data)
